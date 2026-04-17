@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { NoteData } from "../types";
 
 const STORAGE_KEY = "notes";
+const PERSIST_DELAY = 500;
 
 const loadNotes = (): NoteData[] => {
   try {
@@ -17,33 +18,44 @@ const loadNotes = (): NoteData[] => {
 export const useNotes = () => {
   const [notes, setNotes] = useState<NoteData[]>(loadNotes);
 
+  // Debounce persistence so typing in a note doesn't hit localStorage on every keystroke
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    const t = setTimeout(() => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    }, PERSIST_DELAY);
+    return () => clearTimeout(t);
   }, [notes]);
 
-  const addNote = (note: Omit<NoteData, "id" | "zIndex">) => {
+  const addNote = useCallback((note: Omit<NoteData, "id" | "zIndex">) => {
     setNotes((prev) => {
       const maxZ = prev.reduce((m, n) => Math.max(m, n.zIndex), 0);
       return [...prev, { ...note, id: crypto.randomUUID(), zIndex: maxZ + 1 }];
     });
-  };
+  }, []);
 
-  const updateNote = (id: string, updatedFields: Partial<NoteData>) => {
-    setNotes((prev) =>
-      prev.map((note) =>
-        note.id === id ? { ...note, ...updatedFields } : note,
-      ),
-    );
-  };
+  const updateNote = useCallback(
+    (id: string, updatedFields: Partial<NoteData>) => {
+      setNotes((prev) =>
+        prev.map((note) =>
+          note.id === id ? { ...note, ...updatedFields } : note,
+        ),
+      );
+    },
+    [],
+  );
 
-  const bringNoteToFront = (id: string) => {
+  const bringToFront = useCallback((id: string) => {
     setNotes((prev) => {
       const maxZ = prev.reduce((m, n) => Math.max(m, n.zIndex), 0);
       const target = prev.find((n) => n.id === id);
       if (!target || target.zIndex === maxZ) return prev;
       return prev.map((n) => (n.id === id ? { ...n, zIndex: maxZ + 1 } : n));
     });
-  };
+  }, []);
 
-  return { notes, addNote, updateNote, bringNoteToFront };
+  const removeNote = useCallback((id: string) => {
+    setNotes((prev) => prev.filter((note) => note.id !== id));
+  }, []);
+
+  return { notes, addNote, updateNote, bringToFront, removeNote };
 };
