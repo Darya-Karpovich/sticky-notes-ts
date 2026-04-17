@@ -1,0 +1,63 @@
+.board {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: gray;
+}
+
+.header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  pointer-events: none;
+}
+
+.title {
+  font-weight: 700;
+}
+
+.addButton {
+  padding: 8px 16px;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.trashZone {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 2px dashed tomato;
+  border-radius: 6px;
+  color: tomato;
+  font-weight: 500;
+  text-align: center;
+  background-color: rgba(47, 44, 43, 0.45);
+}
+
+.draftPreview {
+  position: absolute;
+  z-index: 1;
+  background-color: rgba(214, 194, 102, 0.5);
+  border: 2px dashed #ffdb38;
+  pointer-events: none;
+}

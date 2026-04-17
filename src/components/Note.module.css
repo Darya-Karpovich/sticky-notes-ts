@@ -1,0 +1,32 @@
+.note {
+  position: absolute;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+}
+
+.colorPicker {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0;
+}
+
+.textarea {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 20px;
+  padding-top: 30px;
+  box-sizing: border-box;
+  resize: none;
+  cursor: pointer;
+}
+
+.resizeHandle {
+  cursor: se-resize;
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}

@@ -1,73 +1,33 @@
-# React + TypeScript + Vite
+# Sticky Notes
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Single-page web application for sticky notes
 
-Currently, two official plugins are available:
+## Getting started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm install
+pnpm dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Architecture
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `Board` - main component, manages notes state and interactions
+- `Note` - represents a single sticky note, handles its own rendering and interactions
+- `useNotes` - custom hook for managing notes state and persistence
+- `useResize` - custom hook for handling note resizing logic
+- `useDrag` - custom hook for handling note dragging logic
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Core state managed in custom hook `useNotes`, persisted to `localStorage` with debounce to optimize performance on note editing. Notes can be created, moved, edited, resized and deleted via dragging to "trash area" in top right corner of the board. Each note hase a color picker for customizing its background color. Note can be created by dragging on empty board area and should have min size 100px to be added to the board. Also note can be added by button click, in this case it will be added with default size and position.
+## Implemented features
+
+Required:
+1. Create a new note of the specified size at the specified position. (firstly implemented via button click, then added creation by drawing note sketch)
+2. Change note size by dragging.
+3. Move a note by dragging.
+4. Remove a note by dragging it over a predefined "trash" zone.
+
+Extra:
+- Entering/editing note text.
+- Moving notes to front (in case of overlapping notes).
+- Saving notes to local storage (restoring them on page load).
+- Different note colors.

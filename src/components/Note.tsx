@@ -1,8 +1,9 @@
 import { MoveDiagonal } from "lucide-react";
-import type { NoteData } from "../types";
 import { memo } from "react";
+import type { NoteData } from "../types";
 import { useDrag } from "../hooks/useDrag";
 import { useResize } from "../hooks/useResize";
+import styles from "./Note.module.css";
 
 type NoteProps = {
   note: NoteData;
@@ -56,56 +57,33 @@ export const Note = memo(
 
     return (
       <div
+        className={styles.note}
         onMouseDown={handleMouseDown}
         style={{
-          position: "absolute",
           left: dragPosition?.x ?? position.x,
           top: dragPosition?.y ?? position.y,
-          height,
           width,
+          height,
           zIndex,
           background: color,
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
-          pointerEvents: "auto",
         }}
       >
         <input
           type="color"
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            padding: 0,
-          }}
+          className={styles.colorPicker}
           value={color}
           onChange={(e) => onColorChange(note.id, e.target.value)}
           onMouseDown={(e) => e.stopPropagation()}
         />
         <textarea
-          style={{
-            height,
-            width,
-            border: "none",
-            outline: "none",
-            background: "transparent",
-            padding: 20,
-            paddingTop: 30,
-            boxSizing: "border-box",
-            resize: "none",
-            cursor: "pointer",
-          }}
+          className={styles.textarea}
           value={content}
           onChange={(e) => onNoteChange(note.id, e.target.value)}
           placeholder="Type your note here..."
         />
         <MoveDiagonal
           size={20}
-          style={{
-            cursor: "se-resize",
-            position: "absolute",
-            bottom: 5,
-            right: 5,
-          }}
+          className={styles.resizeHandle}
           onMouseDown={handleResizeMouseDown}
         />
       </div>

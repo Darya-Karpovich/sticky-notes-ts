@@ -1,8 +1,12 @@
 import { Shredder } from "lucide-react";
-import { useNotes } from "../hooks/useNotes";
-import { Note } from "./Note";
 import { useCallback, useRef, useState } from "react";
+import { useNotes } from "../hooks/useNotes";
 import type { NoteData } from "../types";
+import { Note } from "./Note";
+import styles from "./Board.module.css";
+
+const MIN_DRAFT_SIZE = 100;
+const DEFAULT_COLOR = "#ffdb38";
 
 export const Board = () => {
   const { notes, addNote, updateNote, bringToFront, removeNote } = useNotes();
@@ -18,7 +22,7 @@ export const Board = () => {
       position: { x: 100, y: 100 },
       width: 200,
       height: 200,
-      color: "#ffdb38",
+      color: DEFAULT_COLOR,
     });
   };
 
@@ -42,121 +46,64 @@ export const Board = () => {
   );
 
   const handleDrawNewNote = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      const startX = e.clientX;
-      const startY = e.clientY;
-      let lastHeight = 0;
-      let lastWidth = 0;
+    if (e.target !== e.currentTarget) return;
 
-      const newNote = {
-        content: "",
-        position: { x: startX, y: startY },
-        color: "#ffdb38",
-      };
+    const startX = e.clientX;
+    const startY = e.clientY;
+    let lastWidth = 0;
+    let lastHeight = 0;
 
-      const mouseMove = (ev: MouseEvent) => {
-        lastWidth = Math.max(0, ev.clientX - startX);
-        lastHeight = Math.max(0, ev.clientY - startY);
-        setNewNote({ ...newNote, width: lastWidth, height: lastHeight });
-      };
-      const mouseUp = () => {
-        if (lastHeight > 100 && lastWidth > 100) {
-          addNote({
-            ...newNote,
-            width: lastWidth,
-            height: lastHeight,
-          });
-        }
-        setNewNote(null);
-        window.removeEventListener("mousemove", mouseMove);
-        window.removeEventListener("mouseup", mouseUp);
-      };
+    const newNote = {
+      content: "",
+      position: { x: startX, y: startY },
+      color: DEFAULT_COLOR,
+    };
 
-      window.addEventListener("mousemove", mouseMove);
-      window.addEventListener("mouseup", mouseUp);
-    }
+    const mouseMove = (ev: MouseEvent) => {
+      lastWidth = Math.max(0, ev.clientX - startX);
+      lastHeight = Math.max(0, ev.clientY - startY);
+      setNewNote({ ...newNote, width: lastWidth, height: lastHeight });
+    };
+    const mouseUp = () => {
+      if (lastHeight > MIN_DRAFT_SIZE && lastWidth > MIN_DRAFT_SIZE) {
+        addNote({
+          ...newNote,
+          width: lastWidth,
+          height: lastHeight,
+        });
+      }
+      setNewNote(null);
+      window.removeEventListener("mousemove", mouseMove);
+      window.removeEventListener("mouseup", mouseUp);
+    };
+
+    window.addEventListener("mousemove", mouseMove);
+    window.addEventListener("mouseup", mouseUp);
   };
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100vw",
-        height: "100vh",
-        background: "gray",
-      }}
-      onMouseDown={handleDrawNewNote}
-    >
-      <div
-        style={{
-          position: "relative",
-          zIndex: 2,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-          width: "100%",
-        }}
-      >
-        <h1 style={{ fontWeight: 700 }}>Sticky Notes Board</h1>
-        <button
-          onClick={handleAdd}
-          style={{
-            padding: "8px 16px",
-            background: "black",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            fontSize: 16,
-            fontWeight: 500,
-            cursor: "pointer",
-          }}
-        >
+    <div className={styles.board} onMouseDown={handleDrawNewNote}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Sticky Notes Board</h1>
+        <button className={styles.addButton} onClick={handleAdd}>
           + Add note
         </button>
       </div>
-      <div
-        ref={trashRef}
-        style={{
-          position: "absolute",
-          zIndex: 1,
-          borderColor: "tomato",
-          borderStyle: "dashed",
-          borderWidth: 2,
-          borderRadius: 6,
-          right: 0,
-          top: 0,
-          width: 200,
-          height: 200,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 8,
-          padding: 16,
-          boxSizing: "border-box",
-          color: "tomato",
-          fontWeight: 500,
-          textAlign: "center",
-          backgroundColor: "rgba(47, 44, 43, 0.45)",
-        }}
-      >
+      <div ref={trashRef} className={styles.trashZone}>
         <Shredder size={32} />
         <span>drag here to remove note</span>
       </div>
-      <div
-        style={{
-          position: "absolute",
-          zIndex: 1,
-          left: newNote ? newNote.position.x : 0,
-          top: newNote ? newNote.position.y : 0,
-          width: newNote ? newNote.width : 0,
-          height: newNote ? newNote.height : 0,
-          backgroundColor: "rgba(214, 194, 102, 0.5)",
-          border: "2px dashed #ffdb38",
-          pointerEvents: "none",
-        }}
-      />
+      {newNote && (
+        <div
+          className={styles.draftPreview}
+          style={{
+            left: newNote.position.x,
+            top: newNote.position.y,
+            width: newNote.width,
+            height: newNote.height,
+          }}
+        />
+      )}
       {notes.map((note) => (
         <Note
           key={note.id}
