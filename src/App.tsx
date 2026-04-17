@@ -1,5 +1,7 @@
+import { Board } from "./components/Board";
+
 function App() {
-  return <h1>Sticky notes app</h1>;
+  return <Board />;
 }
 
 export default App;
