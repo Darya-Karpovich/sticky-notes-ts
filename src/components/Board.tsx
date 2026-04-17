@@ -1,12 +1,16 @@
 import { Shredder } from "lucide-react";
 import { useNotes } from "../hooks/useNotes";
 import { Note } from "./Note";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
+import type { NoteData } from "../types";
 
 export const Board = () => {
-  const { notes, addNote, updateNote, bringToFront, removeNote } =
-    useNotes();
+  const { notes, addNote, updateNote, bringToFront, removeNote } = useNotes();
   const trashRef = useRef<HTMLDivElement>(null);
+  const [newNote, setNewNote] = useState<Omit<
+    NoteData,
+    "id" | "zIndex"
+  > | null>(null);
 
   const handleAdd = () => {
     addNote({
@@ -37,6 +41,42 @@ export const Board = () => {
     [updateNote],
   );
 
+  const handleDrawNewNote = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      const startX = e.clientX;
+      const startY = e.clientY;
+      let lastHeight = 0;
+      let lastWidth = 0;
+
+      const newNote = {
+        content: "",
+        position: { x: startX, y: startY },
+        color: "#ffdb38",
+      };
+
+      const mouseMove = (ev: MouseEvent) => {
+        lastWidth = Math.max(0, ev.clientX - startX);
+        lastHeight = Math.max(0, ev.clientY - startY);
+        setNewNote({ ...newNote, width: lastWidth, height: lastHeight });
+      };
+      const mouseUp = () => {
+        if (lastHeight > 100 && lastWidth > 100) {
+          addNote({
+            ...newNote,
+            width: lastWidth,
+            height: lastHeight,
+          });
+        }
+        setNewNote(null);
+        window.removeEventListener("mousemove", mouseMove);
+        window.removeEventListener("mouseup", mouseUp);
+      };
+
+      window.addEventListener("mousemove", mouseMove);
+      window.addEventListener("mouseup", mouseUp);
+    }
+  };
+
   return (
     <div
       style={{
@@ -45,6 +85,7 @@ export const Board = () => {
         height: "100vh",
         background: "gray",
       }}
+      onMouseDown={handleDrawNewNote}
     >
       <div
         style={{
@@ -103,6 +144,19 @@ export const Board = () => {
         <Shredder size={32} />
         <span>drag here to remove note</span>
       </div>
+      <div
+        style={{
+          position: "absolute",
+          zIndex: 1,
+          left: newNote ? newNote.position.x : 0,
+          top: newNote ? newNote.position.y : 0,
+          width: newNote ? newNote.width : 0,
+          height: newNote ? newNote.height : 0,
+          backgroundColor: "rgba(214, 194, 102, 0.5)",
+          border: "2px dashed #ffdb38",
+          pointerEvents: "none",
+        }}
+      />
       {notes.map((note) => (
         <Note
           key={note.id}
