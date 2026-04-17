@@ -1,6 +1,8 @@
 # Sticky Notes
 
-Single-page web application for sticky notes
+Single-page web application for sticky notes.
+
+Live demo: [sticky-notes-ts-five.vercel.app](https://sticky-notes-ts-five.vercel.app/)
 
 ## Getting started
 
